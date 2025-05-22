@@ -8,21 +8,20 @@ import java.sql.ResultSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import Model.Mahasiswa;
+import Model.MahasiswaAktif;
+import java.util.ArrayList;
+import java.util.List;
 
 public class formMahasiswa extends javax.swing.JFrame {
     
     private Connection conn;
-    public formMahasiswa() {
-        initComponents();
-        conn = Koneksi.getConnection(); 
-        getData();
-        nonAktifButton();
-        aktifButton();
-    }
+    private List<Mahasiswa> listMahasiswa = new ArrayList<>();
     
     private void getData() {
         DefaultTableModel model = (DefaultTableModel) tbl_data.getModel();
         model.setRowCount(0);
+        listMahasiswa.clear();
         
         try{
             String sql = "SELECT * FROM mahasiswa";
@@ -34,8 +33,9 @@ public class formMahasiswa extends javax.swing.JFrame {
                 String nama = rs.getString("nama");
                 String telepon = rs.getString("telepon");
                 String alamat = rs.getString("alamat");
-                
-                Object [] rowData = {id,nama,telepon,alamat};
+                Mahasiswa mhs = new Mahasiswa(id, nama, telepon, alamat);
+                listMahasiswa.add(mhs);
+                Object [] rowData = {id, nama, telepon, alamat};
                 model.addRow(rowData);
             }
             
@@ -281,7 +281,7 @@ public class formMahasiswa extends javax.swing.JFrame {
         int selectedRow = tbl_data.getSelectedRow();
         
         if(selectedRow == -1){
-            JOptionPane.showMessageDialog(this, "Pilih baris yang ingin diperbarui");
+            JOptionPane.showMessageDialog(this, "Pilih baris yang ingin dihapus");
             return;
         }
         
@@ -334,6 +334,8 @@ public class formMahasiswa extends javax.swing.JFrame {
             int rowInserted = st.executeUpdate();
             
             if(rowInserted > 0){
+                MahasiswaAktif mhsAktif = new MahasiswaAktif(0, nama, telepon, alamat);
+                mhsAktif.cetakData();
                 JOptionPane.showMessageDialog(this, "Data Berhasil Ditambahkan");
                 resetForm();
                 getData();
@@ -397,7 +399,6 @@ public class formMahasiswa extends javax.swing.JFrame {
             
         }catch (Exception e){
             Logger.getLogger(formMahasiswa.class.getName()).log(Level.SEVERE,null, e);
-        
         }
     }//GEN-LAST:event_t_cariKeyTyped
 
@@ -411,15 +412,8 @@ public class formMahasiswa extends javax.swing.JFrame {
         t_alamat.setText("");
     }
     
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Windows".equals(info.getName())) {
@@ -462,12 +456,13 @@ public class formMahasiswa extends javax.swing.JFrame {
     private javax.swing.JTextField t_telepon;
     private javax.swing.JTable tbl_data;
     // End of variables declaration//GEN-END:variables
-
-   
-
-   
-
+ 
     
-
-    
+    public formMahasiswa() {
+        initComponents();
+        conn = Koneksi.getConnection(); 
+        getData();
+        nonAktifButton();
+        aktifButton();
+    }
 }
